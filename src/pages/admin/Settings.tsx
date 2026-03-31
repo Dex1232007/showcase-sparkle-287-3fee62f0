@@ -30,6 +30,7 @@ const OVERLAY_OPTIONS = [
   { value: "neon_grid", label: "🔮 Neon Grid" },
   { value: "bokeh", label: "🔴 Bokeh" },
   { value: "waves", label: "🌊 Waves" },
+  { value: "thingyan", label: "🌼 Thingyan (Padauk)" },
 ] as const;
 
 const COLOR_PRESETS = [
