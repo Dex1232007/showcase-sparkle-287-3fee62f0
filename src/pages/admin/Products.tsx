@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import DragDropUpload from "@/components/DragDropUpload";
 import { useProducts } from "@/contexts/ProductContext";
 import AdminLayout from "@/components/AdminLayout";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
