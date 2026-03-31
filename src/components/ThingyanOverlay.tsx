@@ -4,7 +4,11 @@ import { motion } from "framer-motion";
 interface Petal {
   x: number; y: number; size: number; speed: number;
   drift: number; rotation: number; rotSpeed: number; opacity: number;
+  blur: number; swayPhase: number; swayAmp: number;
 }
+
+// Wind state for gentle direction changes
+const wind = { x: 0, target: 0, timer: 0 };
 
 function FallingPetals() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,47 +23,84 @@ function FallingPetals() {
     resize();
     window.addEventListener("resize", resize);
 
-    const petals: Petal[] = Array.from({ length: 35 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight - window.innerHeight,
-      size: 4 + Math.random() * 8,
-      speed: 0.4 + Math.random() * 0.8,
-      drift: (Math.random() - 0.5) * 0.6,
-      rotation: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 2,
-      opacity: 0.3 + Math.random() * 0.5,
-    }));
+    // Limit to 40 petals for performance
+    const PETAL_COUNT = 40;
+    const petals: Petal[] = Array.from({ length: PETAL_COUNT }, () => spawnPetal(canvas));
+
+    function spawnPetal(c: HTMLCanvasElement, fromTop = false): Petal {
+      const size = 3 + Math.random() * 7;
+      const depth = Math.random(); // 0 = far, 1 = close
+      return {
+        x: Math.random() * c.width,
+        y: fromTop ? -20 - Math.random() * 60 : Math.random() * c.height,
+        size: size * (0.5 + depth * 0.5),
+        speed: 0.3 + depth * 0.6 + Math.random() * 0.3,
+        drift: (Math.random() - 0.5) * 0.3,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 3, // random rotation while falling
+        opacity: 0.2 + depth * 0.5,
+        blur: (1 - depth) * 2, // distant = more blur
+        swayPhase: Math.random() * Math.PI * 2,
+        swayAmp: 0.3 + Math.random() * 0.5,
+      };
+    }
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const p of petals) {
+
+      // Update wind slowly
+      wind.timer -= 0.016;
+      if (wind.timer <= 0) {
+        wind.target = (Math.random() - 0.5) * 0.8;
+        wind.timer = 3 + Math.random() * 5;
+      }
+      wind.x += (wind.target - wind.x) * 0.005;
+
+      for (let i = 0; i < petals.length; i++) {
+        const p = petals[i];
         p.y += p.speed;
-        p.x += p.drift + Math.sin(p.y * 0.01) * 0.3;
+        p.x += p.drift + wind.x + Math.sin(p.swayPhase) * p.swayAmp;
+        p.swayPhase += 0.015 + Math.random() * 0.005;
         p.rotation += p.rotSpeed;
 
-        if (p.y > canvas.height + 20) {
-          p.y = -20;
-          p.x = Math.random() * canvas.width;
+        // Reset when off screen
+        if (p.y > canvas.height + 30 || p.x > canvas.width + 40 || p.x < -40) {
+          Object.assign(p, spawnPetal(canvas, true));
         }
-        if (p.x > canvas.width + 20) p.x = -20;
-        if (p.x < -20) p.x = canvas.width + 20;
 
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
         ctx.globalAlpha = p.opacity;
 
-        // Draw petal shape
+        // Apply blur for distant petals
+        if (p.blur > 0.5) {
+          ctx.filter = `blur(${p.blur}px)`;
+        }
+
+        // Padauk petal: golden yellow with subtle variation
+        const hue = 42 + (i % 5);
+        const lightness = 55 + (i % 3) * 4;
+
+        // Main petal ellipse
         ctx.beginPath();
-        ctx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${42 + Math.random() * 5}, 90%, ${55 + Math.random() * 10}%)`;
+        ctx.ellipse(0, 0, p.size, p.size * 0.45, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${hue}, 90%, ${lightness}%)`;
         ctx.fill();
 
+        // Cross petal
         ctx.beginPath();
-        ctx.ellipse(0, 0, p.size * 0.5, p.size, 0, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${40 + Math.random() * 5}, 85%, ${58 + Math.random() * 10}%)`;
+        ctx.ellipse(0, 0, p.size * 0.45, p.size, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${hue - 2}, 85%, ${lightness + 3}%)`;
         ctx.fill();
 
+        // Tiny center dot
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.12, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${hue + 5}, 80%, ${lightness + 15}%)`;
+        ctx.fill();
+
+        ctx.filter = "none";
         ctx.restore();
       }
       animId = requestAnimationFrame(draw);
@@ -152,12 +193,11 @@ export default function ThingyanOverlay() {
         />
       </motion.div>
 
-      {/* Glassmorphism frame border effect */}
+      {/* Glassmorphism frame border */}
       <div className="fixed inset-0 z-[98] pointer-events-none"
         style={{
           border: "1px solid rgba(255, 220, 100, 0.15)",
           boxShadow: "inset 0 0 80px rgba(250, 204, 21, 0.05)",
-          borderRadius: "0",
         }}
       />
     </>
