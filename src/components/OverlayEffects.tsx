@@ -1,6 +1,8 @@
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useEffect, useRef } from "react";
 import ThingyanOverlay from "./ThingyanOverlay";
+import WaterSplashOverlay from "./WaterSplashOverlay";
+import TazaungdaingOverlay from "./TazaungdaingOverlay";
 
 interface Particle {
   x: number; y: number; vx: number; vy: number;
