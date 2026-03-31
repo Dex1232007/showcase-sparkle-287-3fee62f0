@@ -1,13 +1,15 @@
 import { useParams, Link } from "react-router-dom";
 import { useProducts } from "@/contexts/ProductContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import UserLayout from "@/components/UserLayout";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Send, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { getProduct } = useProducts();
+  const { currency } = useSiteSettings();
   const product = getProduct(id!);
 
   if (!product) {
@@ -59,13 +61,13 @@ export default function ProductDetail() {
                     <Star className="w-3 h-3" /> Featured
                   </span>
                 )}
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${product.in_stock ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${product.in_stock ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
                   {product.in_stock ? "In Stock" : "Out of Stock"}
                 </span>
               </div>
 
               {product.price && (
-                <p className="text-3xl font-bold tabular-nums mb-6">${product.price}</p>
+                <p className="text-3xl font-bold tabular-nums mb-6">{currency.symbol}{product.price.toLocaleString()}</p>
               )}
 
               <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
@@ -94,6 +96,14 @@ export default function ProductDetail() {
                       <a href={product.social_messenger} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Messenger
+                      </a>
+                    </Button>
+                  )}
+                  {product.social_viber && (
+                    <Button asChild variant="outline" className="active:scale-95 transition-transform">
+                      <a href={product.social_viber} target="_blank" rel="noopener noreferrer">
+                        <Phone className="w-4 h-4 mr-2" />
+                        Viber
                       </a>
                     </Button>
                   )}

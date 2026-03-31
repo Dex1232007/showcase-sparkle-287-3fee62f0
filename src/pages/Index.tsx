@@ -1,16 +1,27 @@
 import { useProducts } from "@/contexts/ProductContext";
 import UserLayout from "@/components/UserLayout";
 import HeroSection from "@/components/HeroSection";
+import HeroSlider from "@/components/HeroSlider";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 export default function Index() {
   const { products } = useProducts();
+  const { sliderSlides } = useSiteSettings();
   const featured = products.filter((p) => p.featured);
 
   return (
     <UserLayout>
       <HeroSection />
+
+      {sliderSlides.length > 0 && (
+        <section className="py-8">
+          <div className="container">
+            <HeroSlider />
+          </div>
+        </section>
+      )}
 
       <section className="py-16">
         <div className="container">
