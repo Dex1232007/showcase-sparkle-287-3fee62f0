@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import type { Product } from "@/data/products";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -30,6 +31,7 @@ interface ProductForm {
   social_telegram: string;
   social_whatsapp: string;
   social_messenger: string;
+  social_viber: string;
 }
 
 const emptyForm: ProductForm = {
@@ -44,10 +46,12 @@ const emptyForm: ProductForm = {
   social_telegram: "",
   social_whatsapp: "",
   social_messenger: "",
+  social_viber: "",
 };
 
 export default function AdminProducts() {
   const { products, categories, addProduct, updateProduct, deleteProduct, reorderProducts } = useProducts();
+  const { currency } = useSiteSettings();
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -80,6 +84,7 @@ export default function AdminProducts() {
       social_telegram: product.social_telegram || "",
       social_whatsapp: product.social_whatsapp || "",
       social_messenger: product.social_messenger || "",
+      social_viber: product.social_viber || "",
     });
     setDialogOpen(true);
   };
@@ -92,6 +97,7 @@ export default function AdminProducts() {
       social_telegram: form.social_telegram || null,
       social_whatsapp: form.social_whatsapp || null,
       social_messenger: form.social_messenger || null,
+      social_viber: form.social_viber || null,
     };
     if (!cleaned.name.trim()) return toast.error("Product name is required");
     if (cleaned.images.length === 0) cleaned.images = ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80"];
@@ -212,7 +218,7 @@ export default function AdminProducts() {
                           </div>
                         </td>
                         <td className="p-3 text-muted-foreground hidden sm:table-cell">{product.category}</td>
-                        <td className="p-3 tabular-nums hidden md:table-cell">{product.price ? `$${product.price}` : "—"}</td>
+                        <td className="p-3 tabular-nums hidden md:table-cell">{product.price ? `${currency.symbol}${product.price}` : "—"}</td>
                         <td className="p-3 hidden md:table-cell">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${product.in_stock ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
                             {product.in_stock ? "In Stock" : "Out of Stock"}
@@ -264,7 +270,7 @@ export default function AdminProducts() {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Price</Label>
+                <Label>Price ({currency.symbol})</Label>
                 <Input type="number" value={form.price ?? ""} onChange={(e) => setForm({ ...form, price: e.target.value ? Number(e.target.value) : null })} placeholder="Optional" />
               </div>
             </div>
@@ -282,10 +288,11 @@ export default function AdminProducts() {
             </div>
 
             <div className="space-y-2 border-t pt-4">
-              <Label className="text-muted-foreground">Social Links</Label>
+              <Label className="text-muted-foreground">Social / Contact Links</Label>
               <Input placeholder="Telegram URL" value={form.social_telegram} onChange={(e) => setForm({ ...form, social_telegram: e.target.value })} />
               <Input placeholder="WhatsApp URL" value={form.social_whatsapp} onChange={(e) => setForm({ ...form, social_whatsapp: e.target.value })} />
               <Input placeholder="Messenger URL" value={form.social_messenger} onChange={(e) => setForm({ ...form, social_messenger: e.target.value })} />
+              <Input placeholder="Viber URL" value={form.social_viber} onChange={(e) => setForm({ ...form, social_viber: e.target.value })} />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">

@@ -35,6 +35,18 @@ export interface ColorTheme {
   custom_accent: string;
 }
 
+export interface SliderSlide {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+}
+
+export interface CurrencySettings {
+  code: string;
+  symbol: string;
+}
+
 interface SiteSettingsContextType {
   overlayEffect: OverlayEffect;
   branding: SiteBranding;
@@ -42,12 +54,16 @@ interface SiteSettingsContextType {
   navbarSettings: NavbarSettings;
   footerSettings: FooterSettings;
   colorTheme: ColorTheme;
+  sliderSlides: SliderSlide[];
+  currency: CurrencySettings;
   updateOverlay: (effect: OverlayEffect) => Promise<void>;
   updateBranding: (branding: SiteBranding) => Promise<void>;
   updateHeroContent: (hero: HeroContent) => Promise<void>;
   updateNavbarSettings: (nav: NavbarSettings) => Promise<void>;
   updateFooterSettings: (footer: FooterSettings) => Promise<void>;
   updateColorTheme: (theme: ColorTheme) => Promise<void>;
+  updateSliderSlides: (slides: SliderSlide[]) => Promise<void>;
+  updateCurrency: (currency: CurrencySettings) => Promise<void>;
   loading: boolean;
 }
 
@@ -58,6 +74,8 @@ const defaults = {
   navbar: { brand_name: "Showcase", show_theme_toggle: true },
   footer: { text: `© ${new Date().getFullYear()} Showcase. All rights reserved.`, show_social: true },
   color: { preset: "amber", custom_accent: "38 92% 50%" },
+  slider: [] as SliderSlide[],
+  currency: { code: "USD", symbol: "$" },
 };
 
 const SiteSettingsContext = createContext<SiteSettingsContextType | null>(null);
@@ -69,6 +87,8 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const [navbarSettings, setNavbarSettings] = useState<NavbarSettings>(defaults.navbar);
   const [footerSettings, setFooterSettings] = useState<FooterSettings>(defaults.footer);
   const [colorTheme, setColorTheme] = useState<ColorTheme>(defaults.color);
+  const [sliderSlides, setSliderSlides] = useState<SliderSlide[]>(defaults.slider);
+  const [currency, setCurrency] = useState<CurrencySettings>(defaults.currency);
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = useCallback(async () => {
@@ -82,6 +102,8 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
         if (row.key === "navbar_settings") setNavbarSettings(v);
         if (row.key === "footer_settings") setFooterSettings(v);
         if (row.key === "color_theme") setColorTheme(v);
+        if (row.key === "slider_slides") setSliderSlides(v);
+        if (row.key === "currency") setCurrency(v);
       }
     }
     setLoading(false);
@@ -112,7 +134,6 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--sidebar-primary", accent);
     root.style.setProperty("--sidebar-ring", accent);
     root.style.setProperty("--hero-gradient-from", accent);
-    // Slightly shift for gradient-to
     const parts = accent.split(" ");
     if (parts.length === 3) {
       const h = parseInt(parts[0]) - 10;
@@ -121,7 +142,12 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   }, [colorTheme]);
 
   const upsert = async (key: string, value: any) => {
-    await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+    const { data } = await supabase.from("site_settings").select("id").eq("key", key).maybeSingle();
+    if (data) {
+      await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+    } else {
+      await supabase.from("site_settings").insert({ key, value });
+    }
   };
 
   const updateOverlay = async (e: OverlayEffect) => { setOverlayEffect(e); await upsert("overlay_effect", e); };
@@ -130,9 +156,11 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const updateNavbarSettings = async (n: NavbarSettings) => { setNavbarSettings(n); await upsert("navbar_settings", n); };
   const updateFooterSettings = async (f: FooterSettings) => { setFooterSettings(f); await upsert("footer_settings", f); };
   const updateColorTheme = async (c: ColorTheme) => { setColorTheme(c); await upsert("color_theme", c); };
+  const updateSliderSlides = async (s: SliderSlide[]) => { setSliderSlides(s); await upsert("slider_slides", s); };
+  const updateCurrency = async (c: CurrencySettings) => { setCurrency(c); await upsert("currency", c); };
 
   return (
-    <SiteSettingsContext.Provider value={{ overlayEffect, branding, heroContent, navbarSettings, footerSettings, colorTheme, updateOverlay, updateBranding, updateHeroContent, updateNavbarSettings, updateFooterSettings, updateColorTheme, loading }}>
+    <SiteSettingsContext.Provider value={{ overlayEffect, branding, heroContent, navbarSettings, footerSettings, colorTheme, sliderSlides, currency, updateOverlay, updateBranding, updateHeroContent, updateNavbarSettings, updateFooterSettings, updateColorTheme, updateSliderSlides, updateCurrency, loading }}>
       {children}
     </SiteSettingsContext.Provider>
   );

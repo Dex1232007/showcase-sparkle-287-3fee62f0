@@ -45,6 +45,7 @@ export type Database = {
           price: number | null
           social_messenger: string | null
           social_telegram: string | null
+          social_viber: string | null
           social_whatsapp: string | null
           sort_order: number
           updated_at: string
@@ -61,6 +62,7 @@ export type Database = {
           price?: number | null
           social_messenger?: string | null
           social_telegram?: string | null
+          social_viber?: string | null
           social_whatsapp?: string | null
           sort_order?: number
           updated_at?: string
@@ -77,6 +79,7 @@ export type Database = {
           price?: number | null
           social_messenger?: string | null
           social_telegram?: string | null
+          social_viber?: string | null
           social_whatsapp?: string | null
           sort_order?: number
           updated_at?: string
