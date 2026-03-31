@@ -189,15 +189,14 @@ export default function AdminSettings() {
                     <div className="flex items-start gap-2">
                       <GripVertical className="w-4 h-4 text-muted-foreground mt-2.5 shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-bold text-accent">#{i + 1}</span>
-                          <Input
-                            value={slide.image}
-                            onChange={(e) => updateSlide(slide.id, "image", e.target.value)}
-                            placeholder="Image URL"
-                            className="text-xs h-8"
-                          />
                         </div>
+                        <DragDropUpload
+                          compact
+                          currentImage={slide.image}
+                          onUpload={(url) => updateSlide(slide.id, "image", url)}
+                        />
                         <div className="grid grid-cols-2 gap-2">
                           <Input
                             value={slide.title}

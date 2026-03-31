@@ -276,8 +276,11 @@ export default function AdminProducts() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input value={form.images[0]} onChange={(e) => setForm({ ...form, images: [e.target.value] })} placeholder="https://..." />
+              <Label>Product Image</Label>
+              <DragDropUpload
+                currentImage={form.images[0]}
+                onUpload={(url) => setForm({ ...form, images: [url] })}
+              />
             </div>
             <div className="flex items-center justify-between">
               <Label>Featured</Label>
