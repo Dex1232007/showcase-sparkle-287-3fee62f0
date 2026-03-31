@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 
 export interface OverlayEffect {
-  type: "none" | "snow" | "rain" | "stars" | "bubbles" | "confetti" | "fireflies" | "aurora" | "matrix" | "geometric" | "sakura" | "sparkle" | "smoke" | "neon_grid" | "bokeh" | "waves";
+  type: "none" | "snow" | "rain" | "stars" | "bubbles" | "confetti" | "fireflies" | "aurora" | "matrix" | "geometric" | "sakura" | "sparkle" | "smoke" | "neon_grid" | "bokeh" | "waves" | "thingyan";
   enabled: boolean;
 }
 
