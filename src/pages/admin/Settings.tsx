@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
+import DragDropUpload from "@/components/DragDropUpload";
 import { useSiteSettings, HeroContent, NavbarSettings, FooterSettings, ColorTheme, SliderSlide, CurrencySettings } from "@/contexts/SiteSettingsContext";
 import { motion, Reorder } from "framer-motion";
 import { Input } from "@/components/ui/input";
