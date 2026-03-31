@@ -1,6 +1,8 @@
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useEffect, useRef } from "react";
 import ThingyanOverlay from "./ThingyanOverlay";
+import WaterSplashOverlay from "./WaterSplashOverlay";
+import TazaungdaingOverlay from "./TazaungdaingOverlay";
 
 interface Particle {
   x: number; y: number; vx: number; vy: number;
@@ -218,13 +220,15 @@ export default function OverlayEffects() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!overlayEffect.enabled || overlayEffect.type === "none" || overlayEffect.type === "thingyan" || !canvasRef.current) return;
+    if (!overlayEffect.enabled || overlayEffect.type === "none" || overlayEffect.type === "thingyan" || overlayEffect.type === "water_splash" || overlayEffect.type === "tazaungdaing" || !canvasRef.current) return;
     return createParticles(canvasRef.current, overlayEffect.type);
   }, [overlayEffect]);
 
   if (!overlayEffect.enabled || overlayEffect.type === "none") return null;
 
   if (overlayEffect.type === "thingyan") return <ThingyanOverlay />;
+  if (overlayEffect.type === "water_splash") return <WaterSplashOverlay />;
+  if (overlayEffect.type === "tazaungdaing") return <TazaungdaingOverlay />;
 
   return (
     <canvas
