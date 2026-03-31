@@ -227,6 +227,8 @@ export default function OverlayEffects() {
   if (!overlayEffect.enabled || overlayEffect.type === "none") return null;
 
   if (overlayEffect.type === "thingyan") return <ThingyanOverlay />;
+  if (overlayEffect.type === "water_splash") return <WaterSplashOverlay />;
+  if (overlayEffect.type === "tazaungdaing") return <TazaungdaingOverlay />;
 
   return (
     <canvas

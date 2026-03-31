@@ -31,6 +31,8 @@ const OVERLAY_OPTIONS = [
   { value: "bokeh", label: "🔴 Bokeh" },
   { value: "waves", label: "🌊 Waves" },
   { value: "thingyan", label: "🌼 Thingyan (Padauk)" },
+  { value: "water_splash", label: "💦 Water Splash (Thingyan)" },
+  { value: "tazaungdaing", label: "🏮 Tazaungdaing (Lanterns)" },
 ] as const;
 
 const COLOR_PRESETS = [
