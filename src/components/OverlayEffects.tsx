@@ -220,7 +220,7 @@ export default function OverlayEffects() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!overlayEffect.enabled || overlayEffect.type === "none" || overlayEffect.type === "thingyan" || !canvasRef.current) return;
+    if (!overlayEffect.enabled || overlayEffect.type === "none" || overlayEffect.type === "thingyan" || overlayEffect.type === "water_splash" || overlayEffect.type === "tazaungdaing" || !canvasRef.current) return;
     return createParticles(canvasRef.current, overlayEffect.type);
   }, [overlayEffect]);
 
