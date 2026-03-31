@@ -158,9 +158,12 @@ export default function AdminSettings() {
                 <Input value={localBranding.title} onChange={(e) => setLocalBranding({ ...localBranding, title: e.target.value })} placeholder="My Showcase" />
               </div>
               <div className="space-y-1">
-                <Label>Favicon URL</Label>
-                <Input value={localBranding.favicon_url} onChange={(e) => setLocalBranding({ ...localBranding, favicon_url: e.target.value })} placeholder="https://example.com/favicon.ico" />
-                <p className="text-xs text-muted-foreground">Upload in Media, then paste the URL here.</p>
+                <Label>Favicon</Label>
+                <DragDropUpload
+                  compact
+                  currentImage={localBranding.favicon_url}
+                  onUpload={(url) => setLocalBranding({ ...localBranding, favicon_url: url })}
+                />
               </div>
               {localBranding.favicon_url && (
                 <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
