@@ -218,11 +218,13 @@ export default function OverlayEffects() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!overlayEffect.enabled || overlayEffect.type === "none" || !canvasRef.current) return;
+    if (!overlayEffect.enabled || overlayEffect.type === "none" || overlayEffect.type === "thingyan" || !canvasRef.current) return;
     return createParticles(canvasRef.current, overlayEffect.type);
   }, [overlayEffect]);
 
   if (!overlayEffect.enabled || overlayEffect.type === "none") return null;
+
+  if (overlayEffect.type === "thingyan") return <ThingyanOverlay />;
 
   return (
     <canvas
