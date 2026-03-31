@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
+import DragDropUpload from "@/components/DragDropUpload";
 import { useSiteSettings, HeroContent, NavbarSettings, FooterSettings, ColorTheme, SliderSlide, CurrencySettings } from "@/contexts/SiteSettingsContext";
 import { motion, Reorder } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -157,9 +158,12 @@ export default function AdminSettings() {
                 <Input value={localBranding.title} onChange={(e) => setLocalBranding({ ...localBranding, title: e.target.value })} placeholder="My Showcase" />
               </div>
               <div className="space-y-1">
-                <Label>Favicon URL</Label>
-                <Input value={localBranding.favicon_url} onChange={(e) => setLocalBranding({ ...localBranding, favicon_url: e.target.value })} placeholder="https://example.com/favicon.ico" />
-                <p className="text-xs text-muted-foreground">Upload in Media, then paste the URL here.</p>
+                <Label>Favicon</Label>
+                <DragDropUpload
+                  compact
+                  currentImage={localBranding.favicon_url}
+                  onUpload={(url) => setLocalBranding({ ...localBranding, favicon_url: url })}
+                />
               </div>
               {localBranding.favicon_url && (
                 <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
@@ -185,15 +189,14 @@ export default function AdminSettings() {
                     <div className="flex items-start gap-2">
                       <GripVertical className="w-4 h-4 text-muted-foreground mt-2.5 shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-bold text-accent">#{i + 1}</span>
-                          <Input
-                            value={slide.image}
-                            onChange={(e) => updateSlide(slide.id, "image", e.target.value)}
-                            placeholder="Image URL"
-                            className="text-xs h-8"
-                          />
                         </div>
+                        <DragDropUpload
+                          compact
+                          currentImage={slide.image}
+                          onUpload={(url) => updateSlide(slide.id, "image", url)}
+                        />
                         <div className="grid grid-cols-2 gap-2">
                           <Input
                             value={slide.title}

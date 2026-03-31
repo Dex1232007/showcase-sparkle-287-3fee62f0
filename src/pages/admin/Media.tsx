@@ -72,15 +72,32 @@ export default function AdminMedia() {
             <h1 className="font-display text-3xl font-bold tracking-tight mb-1">Media Manager</h1>
             <p className="text-muted-foreground">{files.length} images uploaded</p>
           </div>
-          <label>
-            <Button asChild className="gradient-accent text-primary-foreground border-0 hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
-              <span>
-                {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                Upload Image
-              </span>
-            </Button>
-            <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
-          </label>
+        </div>
+
+        {/* Drag & Drop upload zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-accent", "bg-accent/10"); }}
+          onDragLeave={(e) => { e.currentTarget.classList.remove("border-accent", "bg-accent/10"); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove("border-accent", "bg-accent/10");
+            const file = e.dataTransfer.files[0];
+            if (file) {
+              const fakeEvent = { target: { files: [file], value: "" } } as any;
+              handleUpload(fakeEvent);
+            }
+          }}
+          onClick={() => document.getElementById("media-file-input")?.click()}
+          className="mb-6 flex flex-col items-center justify-center py-8 px-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-all duration-300 hover:bg-muted/30"
+        >
+          {uploading ? (
+            <Loader2 className="w-8 h-8 animate-spin text-accent mb-2" />
+          ) : (
+            <Upload className="w-8 h-8 text-accent mb-2" />
+          )}
+          <p className="text-sm font-medium">{uploading ? "Uploading..." : "Drop images here or click to upload"}</p>
+          <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF • Max 5MB</p>
+          <input id="media-file-input" type="file" accept="image/*" onChange={handleUpload} className="hidden" />
         </div>
 
         {loading ? (
