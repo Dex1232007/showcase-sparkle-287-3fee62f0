@@ -37,11 +37,13 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          discount_percentage: number | null
           featured: boolean
           id: string
           images: string[]
           in_stock: boolean
           name: string
+          original_price: number | null
           price: number | null
           social_messenger: string | null
           social_telegram: string | null
@@ -54,11 +56,13 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          discount_percentage?: number | null
           featured?: boolean
           id?: string
           images?: string[]
           in_stock?: boolean
           name: string
+          original_price?: number | null
           price?: number | null
           social_messenger?: string | null
           social_telegram?: string | null
@@ -71,11 +75,13 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          discount_percentage?: number | null
           featured?: boolean
           id?: string
           images?: string[]
           in_stock?: boolean
           name?: string
+          original_price?: number | null
           price?: number | null
           social_messenger?: string | null
           social_telegram?: string | null
