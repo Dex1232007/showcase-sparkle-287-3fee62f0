@@ -4,11 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 export interface OverlayEffect {
   type: "none" | "snow" | "rain" | "stars" | "bubbles" | "confetti" | "fireflies" | "aurora" | "matrix" | "geometric" | "sakura" | "sparkle" | "smoke" | "neon_grid" | "bokeh" | "waves" | "thingyan" | "water_splash" | "tazaungdaing";
   enabled: boolean;
+  intensity: number; // 0-100, controls particle count multiplier
+  opacity: number; // 0-100, controls overall opacity
 }
 
 export interface SiteBranding {
   title: string;
   favicon_url: string;
+  logo_url: string;
 }
 
 export interface HeroContent {
@@ -47,6 +50,12 @@ export interface CurrencySettings {
   symbol: string;
 }
 
+export interface AnnouncementBar {
+  enabled: boolean;
+  text: string;
+  link: string;
+}
+
 interface SiteSettingsContextType {
   overlayEffect: OverlayEffect;
   branding: SiteBranding;
@@ -56,6 +65,7 @@ interface SiteSettingsContextType {
   colorTheme: ColorTheme;
   sliderSlides: SliderSlide[];
   currency: CurrencySettings;
+  announcement: AnnouncementBar;
   updateOverlay: (effect: OverlayEffect) => Promise<void>;
   updateBranding: (branding: SiteBranding) => Promise<void>;
   updateHeroContent: (hero: HeroContent) => Promise<void>;
@@ -64,18 +74,20 @@ interface SiteSettingsContextType {
   updateColorTheme: (theme: ColorTheme) => Promise<void>;
   updateSliderSlides: (slides: SliderSlide[]) => Promise<void>;
   updateCurrency: (currency: CurrencySettings) => Promise<void>;
+  updateAnnouncement: (ann: AnnouncementBar) => Promise<void>;
   loading: boolean;
 }
 
 const defaults = {
-  overlay: { type: "none" as const, enabled: false },
-  branding: { title: "Showcase", favicon_url: "" },
+  overlay: { type: "none" as const, enabled: false, intensity: 50, opacity: 80 },
+  branding: { title: "Showcase", favicon_url: "", logo_url: "" },
   hero: { subtitle: "Curated Collection", title: "Discover Products", title_highlight: "Worth Having", description: "A handpicked selection of premium products. Browse freely, connect directly with the seller when you find something you love.", button_text: "Browse Products", button_link: "/products" },
   navbar: { brand_name: "Showcase", show_theme_toggle: true },
   footer: { text: `© ${new Date().getFullYear()} Showcase. All rights reserved.`, show_social: true },
   color: { preset: "amber", custom_accent: "38 92% 50%" },
   slider: [] as SliderSlide[],
   currency: { code: "USD", symbol: "$" },
+  announcement: { enabled: false, text: "Enjoy 10% OFF orders over $100 | Free Shipping", link: "/products" },
 };
 
 const SiteSettingsContext = createContext<SiteSettingsContextType | null>(null);
@@ -89,6 +101,7 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const [colorTheme, setColorTheme] = useState<ColorTheme>(defaults.color);
   const [sliderSlides, setSliderSlides] = useState<SliderSlide[]>(defaults.slider);
   const [currency, setCurrency] = useState<CurrencySettings>(defaults.currency);
+  const [announcement, setAnnouncement] = useState<AnnouncementBar>(defaults.announcement);
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = useCallback(async () => {
@@ -96,14 +109,15 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
     if (data) {
       for (const row of data) {
         const v = row.value as any;
-        if (row.key === "overlay_effect") setOverlayEffect(v);
-        if (row.key === "site_branding") setBranding(v);
+        if (row.key === "overlay_effect") setOverlayEffect({ ...defaults.overlay, ...v });
+        if (row.key === "site_branding") setBranding({ ...defaults.branding, ...v });
         if (row.key === "hero_content") setHeroContent(v);
         if (row.key === "navbar_settings") setNavbarSettings(v);
         if (row.key === "footer_settings") setFooterSettings(v);
         if (row.key === "color_theme") setColorTheme(v);
         if (row.key === "slider_slides") setSliderSlides(v);
         if (row.key === "currency") setCurrency(v);
+        if (row.key === "announcement_bar") setAnnouncement({ ...defaults.announcement, ...v });
       }
     }
     setLoading(false);
@@ -120,7 +134,6 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
     if (branding.title) document.title = branding.title;
   }, [branding]);
 
-  // Apply color theme
   useEffect(() => {
     const root = document.documentElement;
     const presets: Record<string, string> = {
@@ -158,9 +171,10 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const updateColorTheme = async (c: ColorTheme) => { setColorTheme(c); await upsert("color_theme", c); };
   const updateSliderSlides = async (s: SliderSlide[]) => { setSliderSlides(s); await upsert("slider_slides", s); };
   const updateCurrency = async (c: CurrencySettings) => { setCurrency(c); await upsert("currency", c); };
+  const updateAnnouncement = async (a: AnnouncementBar) => { setAnnouncement(a); await upsert("announcement_bar", a); };
 
   return (
-    <SiteSettingsContext.Provider value={{ overlayEffect, branding, heroContent, navbarSettings, footerSettings, colorTheme, sliderSlides, currency, updateOverlay, updateBranding, updateHeroContent, updateNavbarSettings, updateFooterSettings, updateColorTheme, updateSliderSlides, updateCurrency, loading }}>
+    <SiteSettingsContext.Provider value={{ overlayEffect, branding, heroContent, navbarSettings, footerSettings, colorTheme, sliderSlides, currency, announcement, updateOverlay, updateBranding, updateHeroContent, updateNavbarSettings, updateFooterSettings, updateColorTheme, updateSliderSlides, updateCurrency, updateAnnouncement, loading }}>
       {children}
     </SiteSettingsContext.Provider>
   );

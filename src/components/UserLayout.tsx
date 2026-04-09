@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
@@ -14,21 +14,31 @@ const navLinks = [
 export default function UserLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { navbarSettings, footerSettings } = useSiteSettings();
+  const { navbarSettings, footerSettings, branding, announcement } = useSiteSettings();
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+      {/* Announcement Bar */}
+      {announcement.enabled && announcement.text && (
+        <div className="gradient-accent text-primary-foreground text-center py-2 px-4 text-xs sm:text-sm font-medium">
+          <Link to={announcement.link || "/products"} className="inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity">
+            {announcement.text}
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
       <header className="sticky top-0 z-50 glass-card border-b">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-lg gradient-accent flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-semibold tracking-tight">{navbarSettings.brand_name}</span>
-          </Link>
-
+          {/* Left: mobile menu + nav links */}
           <div className="flex items-center gap-2">
-            <nav className="hidden md:flex items-center gap-8 mr-2">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors active:scale-95"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <nav className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -44,13 +54,20 @@ export default function UserLayout({ children }: { children: ReactNode }) {
                 </Link>
               ))}
             </nav>
+          </div>
+
+          {/* Center: Logo */}
+          <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">
+            {branding.logo_url ? (
+              <img src={branding.logo_url} alt={navbarSettings.brand_name} className="h-9 w-auto object-contain" />
+            ) : (
+              <span className="font-display text-xl font-semibold tracking-tight">{navbarSettings.brand_name}</span>
+            )}
+          </Link>
+
+          {/* Right: theme toggle */}
+          <div className="flex items-center gap-2">
             {navbarSettings.show_theme_toggle && <ThemeToggle />}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors active:scale-95"
-            >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
 

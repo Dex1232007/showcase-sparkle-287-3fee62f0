@@ -25,6 +25,8 @@ interface ProductForm {
   description: string;
   category: string;
   price: number | null;
+  original_price: number | null;
+  discount_percentage: number | null;
   images: string[];
   featured: boolean;
   in_stock: boolean;
@@ -40,6 +42,8 @@ const emptyForm: ProductForm = {
   description: "",
   category: "",
   price: null,
+  original_price: null,
+  discount_percentage: null,
   images: [""],
   featured: false,
   in_stock: true,
@@ -78,6 +82,8 @@ export default function AdminProducts() {
       description: product.description,
       category: product.category,
       price: product.price,
+      original_price: product.original_price,
+      discount_percentage: product.discount_percentage,
       images: product.images.length ? product.images : [""],
       featured: product.featured,
       in_stock: product.in_stock,
@@ -99,6 +105,8 @@ export default function AdminProducts() {
       social_whatsapp: form.social_whatsapp || null,
       social_messenger: form.social_messenger || null,
       social_viber: form.social_viber || null,
+      original_price: form.original_price || null,
+      discount_percentage: form.discount_percentage || null,
     };
     if (!cleaned.name.trim()) return toast.error("Product name is required");
     if (cleaned.images.length === 0) cleaned.images = ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80"];
@@ -149,12 +157,10 @@ export default function AdminProducts() {
             ) : (
               <>
                 <Button variant="outline" onClick={startReorder} disabled={products.length < 2}>
-                  <GripVertical className="w-4 h-4 mr-2" />
-                  Reorder
+                  <GripVertical className="w-4 h-4 mr-2" /> Reorder
                 </Button>
                 <Button onClick={openAdd} className="gradient-accent text-primary-foreground border-0 hover:opacity-90 active:scale-[0.97] transition-all">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
+                  <Plus className="w-4 h-4 mr-2" /> Add Product
                 </Button>
               </>
             )}
@@ -201,25 +207,32 @@ export default function AdminProducts() {
                 <tbody>
                   <AnimatePresence>
                     {filtered.map((product) => (
-                      <motion.tr
-                        key={product.id}
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="border-b last:border-0 hover:bg-muted/30 transition-colors"
-                      >
+                      <motion.tr key={product.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="p-3">
                           <div className="flex items-center gap-3">
                             <img src={product.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-muted shrink-0" />
                             <div className="min-w-0">
                               <p className="font-medium truncate">{product.name}</p>
-                              {product.featured && <span className="text-xs text-accent">⭐ Featured</span>}
+                              <div className="flex gap-1">
+                                {product.featured && <span className="text-xs text-accent">⭐ Featured</span>}
+                                {product.discount_percentage && product.discount_percentage > 0 && (
+                                  <span className="text-xs text-destructive font-medium">🏷️ {product.discount_percentage}% OFF</span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>
                         <td className="p-3 text-muted-foreground hidden sm:table-cell">{product.category}</td>
-                        <td className="p-3 tabular-nums hidden md:table-cell">{product.price ? `${currency.symbol}${product.price}` : "—"}</td>
+                        <td className="p-3 tabular-nums hidden md:table-cell">
+                          {product.price ? (
+                            <div>
+                              <span>{currency.symbol}{product.price}</span>
+                              {product.original_price && (
+                                <span className="text-xs text-muted-foreground line-through ml-1">{currency.symbol}{product.original_price}</span>
+                              )}
+                            </div>
+                          ) : "—"}
+                        </td>
                         <td className="p-3 hidden md:table-cell">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${product.in_stock ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
                             {product.in_stock ? "In Stock" : "Out of Stock"}
@@ -227,12 +240,8 @@ export default function AdminProducts() {
                         </td>
                         <td className="p-3">
                           <div className="flex justify-end gap-1">
-                            <button onClick={() => openEdit(product)} className="p-2 rounded-lg hover:bg-muted transition-colors active:scale-95">
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => setDeleteId(product.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors active:scale-95">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <button onClick={() => openEdit(product)} className="p-2 rounded-lg hover:bg-muted transition-colors active:scale-95"><Pencil className="w-4 h-4" /></button>
+                            <button onClick={() => setDeleteId(product.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors active:scale-95"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </motion.tr>
@@ -262,25 +271,34 @@ export default function AdminProducts() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Category</Label>
-                <select
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                >
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full rounded-md border bg-background px-3 py-2 text-sm">
                   {categories.map((cat) => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Price ({currency.symbol})</Label>
-                <Input type="number" value={form.price ?? ""} onChange={(e) => setForm({ ...form, price: e.target.value ? Number(e.target.value) : null })} placeholder="Optional" />
+                <Label>Sale Price ({currency.symbol})</Label>
+                <Input type="number" value={form.price ?? ""} onChange={(e) => setForm({ ...form, price: e.target.value ? Number(e.target.value) : null })} placeholder="Current price" />
               </div>
             </div>
+
+            {/* Promotion section */}
+            <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
+              <p className="text-sm font-medium flex items-center gap-1.5">🏷️ Promotion / Discount</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Original Price ({currency.symbol})</Label>
+                  <Input type="number" value={form.original_price ?? ""} onChange={(e) => setForm({ ...form, original_price: e.target.value ? Number(e.target.value) : null })} placeholder="Before discount" className="h-9" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Discount %</Label>
+                  <Input type="number" min={0} max={100} value={form.discount_percentage ?? ""} onChange={(e) => setForm({ ...form, discount_percentage: e.target.value ? Number(e.target.value) : null })} placeholder="e.g. 20" className="h-9" />
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>Product Image</Label>
-              <DragDropUpload
-                currentImage={form.images[0]}
-                onUpload={(url) => setForm({ ...form, images: [url] })}
-              />
+              <DragDropUpload currentImage={form.images[0]} onUpload={(url) => setForm({ ...form, images: [url] })} />
             </div>
             <div className="flex items-center justify-between">
               <Label>Featured</Label>
