@@ -3,7 +3,7 @@ import { useProducts } from "@/contexts/ProductContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import UserLayout from "@/components/UserLayout";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MessageCircle, Send, Phone } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Send, Phone, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ProductDetail() {
@@ -24,6 +24,7 @@ export default function ProductDetail() {
   }
 
   const contactMessage = encodeURIComponent(`Hello, I'm interested in ${product.name}`);
+  const hasDiscount = product.discount_percentage && product.discount_percentage > 0;
 
   return (
     <UserLayout>
@@ -41,9 +42,15 @@ export default function ProductDetail() {
               initial={{ opacity: 0, x: -20, filter: "blur(4px)" }}
               animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="aspect-square rounded-2xl overflow-hidden bg-muted"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-muted"
             >
               <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+              {hasDiscount && (
+                <div className="absolute top-4 left-4 flex items-center gap-1 bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  <Percent className="w-4 h-4" />
+                  {product.discount_percentage}% OFF
+                </div>
+              )}
             </motion.div>
 
             <motion.div
@@ -66,8 +73,13 @@ export default function ProductDetail() {
                 </span>
               </div>
 
-              {product.price && (
-                <p className="text-3xl font-bold tabular-nums mb-6">{currency.symbol}{product.price.toLocaleString()}</p>
+              {product.price !== null && product.price !== undefined && (
+                <div className="flex items-center gap-3 mb-6">
+                  <p className="text-3xl font-bold tabular-nums">{currency.symbol}{product.price.toLocaleString()}</p>
+                  {hasDiscount && product.original_price && (
+                    <p className="text-xl text-muted-foreground line-through tabular-nums">{currency.symbol}{product.original_price.toLocaleString()}</p>
+                  )}
+                </div>
               )}
 
               <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
@@ -78,32 +90,28 @@ export default function ProductDetail() {
                   {product.social_whatsapp && (
                     <Button asChild variant="outline" className="active:scale-95 transition-transform">
                       <a href={`${product.social_whatsapp}?text=${contactMessage}`} target="_blank" rel="noopener noreferrer">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        WhatsApp
+                        <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
                       </a>
                     </Button>
                   )}
                   {product.social_telegram && (
                     <Button asChild variant="outline" className="active:scale-95 transition-transform">
                       <a href={product.social_telegram} target="_blank" rel="noopener noreferrer">
-                        <Send className="w-4 h-4 mr-2" />
-                        Telegram
+                        <Send className="w-4 h-4 mr-2" /> Telegram
                       </a>
                     </Button>
                   )}
                   {product.social_messenger && (
                     <Button asChild variant="outline" className="active:scale-95 transition-transform">
                       <a href={product.social_messenger} target="_blank" rel="noopener noreferrer">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Messenger
+                        <MessageCircle className="w-4 h-4 mr-2" /> Messenger
                       </a>
                     </Button>
                   )}
                   {product.social_viber && (
                     <Button asChild variant="outline" className="active:scale-95 transition-transform">
                       <a href={product.social_viber} target="_blank" rel="noopener noreferrer">
-                        <Phone className="w-4 h-4 mr-2" />
-                        Viber
+                        <Phone className="w-4 h-4 mr-2" /> Viber
                       </a>
                     </Button>
                   )}
