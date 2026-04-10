@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useProducts } from "@/contexts/ProductContext";
+import { useSearchParams } from "react-router-dom";
 import UserLayout from "@/components/UserLayout";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
@@ -14,8 +15,14 @@ const ITEMS_PER_PAGE = 9;
 
 export default function Products() {
   const { products, categories, loading } = useProducts();
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<string>("All");
+  const [category, setCategory] = useState<string>(searchParams.get("category") || "All");
+
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat) setCategory(cat);
+  }, [searchParams]);
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
