@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import ProductSkeleton from "@/components/ProductSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import {
   Pagination, PaginationContent, PaginationItem,
