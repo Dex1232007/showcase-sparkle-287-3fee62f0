@@ -4,7 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import UserLayout from "@/components/UserLayout";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
-import { Search, Loader2 } from "lucide-react";
+import { Search } from "lucide-react";
+import ProductSkeleton from "@/components/ProductSkeleton";
 import { Input } from "@/components/ui/input";
 import {
   Pagination, PaginationContent, PaginationItem,
@@ -47,9 +48,13 @@ export default function Products() {
   if (loading) {
     return (
       <UserLayout>
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-        </div>
+        <section className="py-12 md:py-16">
+          <div className="container">
+            <Skeleton className="h-10 w-48 mb-2" />
+            <Skeleton className="h-5 w-64 mb-8" />
+            <ProductSkeleton count={6} />
+          </div>
+        </section>
       </UserLayout>
     );
   }
