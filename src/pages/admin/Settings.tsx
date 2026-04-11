@@ -182,20 +182,16 @@ export default function AdminSettings() {
             <Button onClick={() => save(() => updateAnnouncement(localAnnouncement), "Announcement updated")} className="mt-4 gradient-accent text-primary-foreground border-0 hover:opacity-90">Save Announcement</Button>
           </Section>
 
-          {/* Currency */}
+          {/* Currency - Fixed to MMK */}
           <Section icon={DollarSign} title="Currency">
-            <p className="text-sm text-muted-foreground mb-2">Set the currency displayed for product prices.</p>
-            <p className="text-xs text-muted-foreground mb-4">Example: 1,000 {localCurrency.symbol} ({localCurrency.code})</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
-              {CURRENCIES.map((c) => (
-                <button key={c.code} onClick={() => setLocalCurrency({ code: c.code, symbol: c.symbol })}
-                  className={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all active:scale-95 ${localCurrency.code === c.code ? "border-accent bg-accent/5" : "border-transparent bg-muted hover:bg-muted/80"}`}>
-                  <span className="text-lg font-bold">{c.symbol}</span>
-                  <span className="text-[10px] font-medium text-muted-foreground">{c.code}</span>
-                </button>
-              ))}
+            <p className="text-sm text-muted-foreground mb-2">Currency is set to Myanmar Kyat (MMK).</p>
+            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+              <span className="text-2xl font-bold">K</span>
+              <div>
+                <p className="text-sm font-medium">Myanmar Kyat (MMK)</p>
+                <p className="text-xs text-muted-foreground">Example: 1,000 MMK</p>
+              </div>
             </div>
-            <Button onClick={() => save(() => updateCurrency(localCurrency), "Currency updated")} className="gradient-accent text-primary-foreground border-0 hover:opacity-90">Save Currency</Button>
           </Section>
 
           {/* Branding + Logo */}
